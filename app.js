@@ -2,6 +2,11 @@ const express = require('express')
 
 const app = express()
 
+const ngrok = require('ngrok');
+
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+
 app.set("view engine", "ejs")
 
 const {google} = require('googleapis')
@@ -112,19 +117,82 @@ app.get('/download', async (req, res)=>{
     const drive = google.drive({ version: 'v3', auth: OAuth2Client });
 
     var fileId = req.query.fileid
-    const fileMetadata = await drive.files.get({ fileId, fields: 'size,name,mimeType' });
-    const fileSize = fileMetadata.data.size;
+    const fileMetadata = await drive.files.get({ fileId, fields: 'name,mimeType' });
     const fileName = fileMetadata.data.name;
     const mimeType = fileMetadata.data.mimeType;
     const downloadUrl = `https://drive.google.com/uc?id=${fileId}&export=download`;
 
-    console.log(fileSize, fileName, mimeType)
+    console.log(fileName, mimeType)
     requestNew.get(downloadUrl)
     .on('response', function(response) {
-        res.setHeader('Content-Length', fileSize);
         res.setHeader('Content-Type', mimeType);
-        res.setHeader('Content-Disposition', 'attachment; filename='+fileName);
+        res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
     })
     .pipe(res);
 
 })
+
+
+app.get('/users', async (req, res)=>{
+
+    var fileId = req.query.fileid
+    var users
+
+    const drive = google.drive({ version: 'v3', auth: OAuth2Client });
+    try {
+      const permissions = await drive.permissions.list({
+        fileId: fileId,
+        fields: 'permissions(emailAddress,id,role,displayName)',
+      });
+  
+      users = permissions.data.permissions;
+      console.log(`Users with access to ${fileId}:`);
+      users.forEach(user => {
+        console.log(`- ${user.displayName} (${user.emailAddress}) - ${user.role}`);
+      });
+  
+    } catch (err) {
+      console.error(`Error retrieving permissions for ${fileId}: ${err}`);
+    }
+
+    res.render("users", {users:users})
+  })
+
+
+  app.post('/webhook', async (req, res) => {
+    const drive = google.drive({ version: 'v3', auth: OAuth2Client });
+    const {channelId, resourceId, resourceIdString, token} = req.body;
+  
+    // Verify the authenticity of the notification using the channel ID and token.
+    // See https://developers.google.com/drive/api/guides/push#verifying-notification-authenticity
+    // for more information.
+  
+    // Retrieve the updated list of users who have access to the file.
+    const file = await drive.files.get({fileId: resourceIdString, fields: 'id, name, permissions'});
+    const permissions = file.data.permissions;
+    
+    // Process the updated list of permissions as needed.
+    console.log(`File ${file.data.name} (${file.data.id}) permissions updated:`, permissions);
+  
+    res.status(200).end();
+  });
+
+  async function watchFile(fileId) {
+    const drive = google.drive({ version: 'v3', auth: OAuth2Client });
+
+    const ngrokUrl = await ngrok.connect(8080);
+
+    const channel = {
+      id: 'my-channel-id',
+      type: 'web_hook',
+      address: ngrokUrl + '/webhook?resourceIdString='+fileId,
+    };
+  
+    const {data: {resourceUri}} = await drive.files.watch({
+      fileId,
+      requestBody: {id: 'my-watch-id5', type: 'web_hook', address: channel.address},
+      channel,
+    });
+    
+    console.log(`Watching file ${fileId} for changes: ${resourceUri}`);
+  }

@@ -4,8 +4,24 @@
 
         <ul>
             <% files.forEach(function(file,index){ %>
-                <li><a href="/download?fileid=<%= file.id %>"> <%= file.name %> </a></li>
+                <li>
+                    <a href="/download?fileid=<%= file.id %>"> <%= file.name %> </a>
+                    <a class="button" style="margin:5px;margin-left: 10px;" href="/users?fileid=<%= file.id %>">Users</a>
+                </li>
             <% }) %>
         </ul>
     </body>
+
+    <style>
+        .button {
+          display: inline-block;
+          padding: 10px 20px;
+          background-color: #4CAF50;
+          color: white;
+          text-decoration: none;
+          font-size: 16px;
+          border-radius: 5px;
+        }
+    </style>
+
 </html>

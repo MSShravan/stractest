@@ -1,0 +1,9 @@
+<html>
+    <body>
+        <ul>
+            <% users.forEach(function(user,index){ %>
+                <li><%= user.displayName %>&nbsp;(<%= user.emailAddress %>)</li>
+            <% }) %>
+        </ul>
+    </body>
+</html>
