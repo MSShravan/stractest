@@ -1,0 +1,11 @@
+<html>
+    <body>
+        Welcome <%=name%>
+
+        <ul>
+            <% files.forEach(function(file,index){ %>
+                <li><a href="/download?fileid=<%= file.id %>"> <%= file.name %> </a></li>
+            <% }) %>
+        </ul>
+    </body>
+</html>
