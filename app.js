@@ -155,7 +155,32 @@ app.get('/users', async (req, res)=>{
       console.error(`Error retrieving permissions for ${fileId}: ${err}`);
     }
 
-    res.render("users", {users:users})
+    res.render("users", {fileId:fileId, users:users})
+  })
+
+  app.get('/updateusers', async (req, res)=>{
+
+    var fileId = req.query.fileid
+    var users
+
+    const drive = google.drive({ version: 'v3', auth: OAuth2Client });
+    try {
+      const permissions = await drive.permissions.list({
+        fileId: fileId,
+        fields: 'permissions(emailAddress,id,role,displayName)',
+      });
+  
+      users = permissions.data.permissions;
+      console.log(`Users with access to ${fileId}:`);
+      users.forEach(user => {
+        console.log(`- ${user.displayName} (${user.emailAddress}) - ${user.role}`);
+      });
+  
+    } catch (err) {
+      console.error(`Error retrieving permissions for ${fileId}: ${err}`);
+    }
+
+    res.json(users);
   })
 
 

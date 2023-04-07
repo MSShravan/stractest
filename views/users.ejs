@@ -1,9 +1,29 @@
 <html>
     <body>
-        <ul>
+        <ul id="users">
             <% users.forEach(function(user,index){ %>
-                <li><%= user.displayName %>&nbsp;(<%= user.emailAddress %>)</li>
+                <li><%= user.displayName %> (<%= user.emailAddress %>)</li>
             <% }) %>
         </ul>
     </body>
+
+    <script>
+        setInterval(() => {
+          fetch("/updateusers?fileid=<%= fileId %>")
+            .then(response => response.json())
+            .then(dataList => {
+              // Update the data on the page
+              const list = document.querySelector('#users')
+              list.innerHTML = ''
+
+                dataList.forEach(data => {
+                const item = document.createElement('li');
+                item.textContent = data.displayName + ' (' +data.emailAddress+')';
+                list.appendChild(item);
+                });
+            })
+            .catch(error => console.error(error));
+        }, 5000); // Update every 5 seconds
+      </script>
+
 </html>
