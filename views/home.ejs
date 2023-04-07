@@ -1,25 +1,38 @@
 <html>
     <body>
-        Welcome <%=name%>
+        <a style="font-size: 24px;">Welcome <%=name%></a>
 
         <ul>
             <% files.forEach(function(file,index){ %>
-                <li>
-                    <a href="/download?fileid=<%= file.id %>"> <%= file.name %> </a>
-                    <a class="button" style="margin:5px;margin-left: 10px;" href="/users?fileid=<%= file.id %>">Users</a>
+                <li style="margin:20px;font-size: 20px;">
+                    <a> <%= file.name %> </a>
+                    <a class="buttond" style="margin:5px;margin-left: 10px;" href="/download?fileid=<%= file.id %>">Download</a>
+                    <a class="button" style="margin:5px;margin-left: 10px;" href="/users?fileid=<%= file.id %>">People with access</a>
                 </li>
             <% }) %>
         </ul>
     </body>
 
     <style>
+        .buttond {
+          display: inline-block;
+          padding: 5px 10px;
+          background-color: rgb(15, 168, 66);
+          color: rgb(255, 255, 255);
+          text-decoration: none;
+          font-size: 14px;
+          border-radius: 5px;
+        }
+    </style>
+
+    <style>
         .button {
           display: inline-block;
-          padding: 10px 20px;
-          background-color: #4CAF50;
-          color: white;
+          padding: 5px 10px;
+          background-color: rgb(48, 96, 193);
+          color: rgb(255, 255, 255);
           text-decoration: none;
-          font-size: 16px;
+          font-size: 14px;
           border-radius: 5px;
         }
     </style>
