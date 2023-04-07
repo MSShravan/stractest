@@ -44,8 +44,6 @@ app.get('/',(req,res)=>{
             scope:SCOPES
         })
 
-        console.log(url)
-
         res.render("index", {url:url})
     } else{
         
@@ -57,11 +55,7 @@ app.get('/',(req,res)=>{
         oauth2.userinfo.get(function(err, response){
             if(err) throw err
 
-            console.log(response.data)
-
             name = response.data.given_name
-
-            // res.render("home", {name:name})
 
             res.redirect('/list')
         })
@@ -77,8 +71,7 @@ app.get('/home',(req,res)=>{
                 console.log("Error logging in")
                 console.log(err)
             } else{
-                console.log("Success")
-                console.log(tokens)
+                console.log("Login success")
                 OAuth2Client.setCredentials(tokens)
 
                 authed = true
@@ -99,38 +92,10 @@ app.get('/list', (req, res) => {
             throw err
         }
         const files = response.data.files;
-        if (files.length) {
-            console.log('Files:');
-            files.map((file) => {
-                console.log(`${file.name} (${file.id})`);
-            });
-        } else {
-            console.log('No files found.');
-        }
 
         res.render("home", {name:name, files:files})
     });
 });
-
-
-app.get('/download', async (req, res)=>{
-    const drive = google.drive({ version: 'v3', auth: OAuth2Client });
-
-    var fileId = req.query.fileid
-    const fileMetadata = await drive.files.get({ fileId, fields: 'name,mimeType' });
-    const fileName = fileMetadata.data.name;
-    const mimeType = fileMetadata.data.mimeType;
-    const downloadUrl = `https://drive.google.com/uc?id=${fileId}&export=download`;
-
-    console.log(fileName, mimeType)
-    requestNew.get(downloadUrl)
-    .on('response', function(response) {
-        res.setHeader('Content-Type', mimeType);
-        res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-    })
-    .pipe(res);
-
-})
 
 
 app.get('/users', async (req, res)=>{
@@ -146,10 +111,6 @@ app.get('/users', async (req, res)=>{
       });
   
       users = permissions.data.permissions;
-      console.log(`Users with access to ${fileId}:`);
-      users.forEach(user => {
-        console.log(`- ${user.displayName} (${user.emailAddress}) - ${user.role}`);
-      });
   
     } catch (err) {
       console.error(`Error retrieving permissions for ${fileId}: ${err}`);
@@ -171,10 +132,6 @@ app.get('/users', async (req, res)=>{
       });
   
       users = permissions.data.permissions;
-      console.log(`Users with access to ${fileId}:`);
-      users.forEach(user => {
-        console.log(`- ${user.displayName} (${user.emailAddress}) - ${user.role}`);
-      });
   
     } catch (err) {
       console.error(`Error retrieving permissions for ${fileId}: ${err}`);
@@ -183,20 +140,14 @@ app.get('/users', async (req, res)=>{
     res.json(users);
   })
 
-
+//Ignore below code
   app.post('/webhook', async (req, res) => {
     const drive = google.drive({ version: 'v3', auth: OAuth2Client });
     const {channelId, resourceId, resourceIdString, token} = req.body;
   
-    // Verify the authenticity of the notification using the channel ID and token.
-    // See https://developers.google.com/drive/api/guides/push#verifying-notification-authenticity
-    // for more information.
-  
-    // Retrieve the updated list of users who have access to the file.
     const file = await drive.files.get({fileId: resourceIdString, fields: 'id, name, permissions'});
     const permissions = file.data.permissions;
     
-    // Process the updated list of permissions as needed.
     console.log(`File ${file.data.name} (${file.data.id}) permissions updated:`, permissions);
   
     res.status(200).end();

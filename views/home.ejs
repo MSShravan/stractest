@@ -1,12 +1,12 @@
 <html>
     <body>
-        <a style="font-size: 24px;">Welcome <%=name%></a>
+        <a style="font-size: 24px;">Hi, <%=name%></a>
 
         <ul>
             <% files.forEach(function(file,index){ %>
                 <li style="margin:20px;font-size: 20px;">
                     <a> <%= file.name %> </a>
-                    <a class="buttond" style="margin:5px;margin-left: 10px;" href="/download?fileid=<%= file.id %>">Download</a>
+                    <a class="buttond" style="margin:5px;margin-left: 10px;" href="https://drive.google.com/uc?id=<%= file.id %>&export=download">Download</a>
                     <a class="button" style="margin:5px;margin-left: 10px;" href="/users?fileid=<%= file.id %>">People with access</a>
                 </li>
             <% }) %>
