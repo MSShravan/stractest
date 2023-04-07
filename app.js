@@ -2,7 +2,7 @@ const express = require('express')
 
 const app = express()
 
-const ngrok = require('ngrok');
+// const ngrok = require('ngrok');
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
@@ -141,34 +141,34 @@ app.get('/users', async (req, res)=>{
   })
 
 //Ignore below code
-  app.post('/webhook', async (req, res) => {
-    const drive = google.drive({ version: 'v3', auth: OAuth2Client });
-    const {channelId, resourceId, resourceIdString, token} = req.body;
+//   app.post('/webhook', async (req, res) => {
+//     const drive = google.drive({ version: 'v3', auth: OAuth2Client });
+//     const {channelId, resourceId, resourceIdString, token} = req.body;
   
-    const file = await drive.files.get({fileId: resourceIdString, fields: 'id, name, permissions'});
-    const permissions = file.data.permissions;
+//     const file = await drive.files.get({fileId: resourceIdString, fields: 'id, name, permissions'});
+//     const permissions = file.data.permissions;
     
-    console.log(`File ${file.data.name} (${file.data.id}) permissions updated:`, permissions);
+//     console.log(`File ${file.data.name} (${file.data.id}) permissions updated:`, permissions);
   
-    res.status(200).end();
-  });
+//     res.status(200).end();
+//   });
 
-  async function watchFile(fileId) {
-    const drive = google.drive({ version: 'v3', auth: OAuth2Client });
+//   async function watchFile(fileId) {
+//     const drive = google.drive({ version: 'v3', auth: OAuth2Client });
 
-    const ngrokUrl = await ngrok.connect(8080);
+//     const ngrokUrl = await ngrok.connect(8080);
 
-    const channel = {
-      id: 'my-channel-id',
-      type: 'web_hook',
-      address: ngrokUrl + '/webhook?resourceIdString='+fileId,
-    };
+//     const channel = {
+//       id: 'my-channel-id',
+//       type: 'web_hook',
+//       address: ngrokUrl + '/webhook?resourceIdString='+fileId,
+//     };
   
-    const {data: {resourceUri}} = await drive.files.watch({
-      fileId,
-      requestBody: {id: 'my-watch-id5', type: 'web_hook', address: channel.address},
-      channel,
-    });
+//     const {data: {resourceUri}} = await drive.files.watch({
+//       fileId,
+//       requestBody: {id: 'my-watch-id5', type: 'web_hook', address: channel.address},
+//       channel,
+//     });
     
-    console.log(`Watching file ${fileId} for changes: ${resourceUri}`);
-  }
+//     console.log(`Watching file ${fileId} for changes: ${resourceUri}`);
+//   }
